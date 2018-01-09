@@ -17,6 +17,7 @@ public:
     UDestructibleComponent();
 
     void OnExplode();
+    bool IsExploded() const { return m_bExploded; }
 
 protected:
 

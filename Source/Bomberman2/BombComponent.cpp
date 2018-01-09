@@ -12,6 +12,7 @@ UBombComponent::UBombComponent()
     , m_TimeToRemoteExplode(10)
     , m_ExplosionClass(NULL)
     , m_CharacterComponent(NULL)
+    , m_DestructibleComponent(NULL)
     , m_ExplosionDistance(200)
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -30,8 +31,11 @@ void UBombComponent::BeginPlay()
         {
             m_CharacterComponent = Cast<UCharacterComponent>(characterActor->GetComponentByClass(UCharacterComponent::StaticClass()));
         }
-    }
 
+        m_DestructibleComponent = Cast<UDestructibleComponent>(bombActor->GetComponentByClass(UDestructibleComponent::StaticClass()));
+    }
+    
+    check(m_DestructibleComponent != NULL);
     check(m_CharacterComponent != NULL);
 }
 
@@ -45,7 +49,7 @@ void UBombComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
     const bool shouldDetonate = m_CharacterComponent->IsRemoteControlledBombs() ? m_TimeToRemoteExplode < 0 : m_TimeToExplode < 0;
 
-    if (shouldDetonate || m_CharacterComponent->ShouldDetonate())
+    if (shouldDetonate || m_CharacterComponent->ShouldDetonate() || m_DestructibleComponent->IsExploded())
     {
         DirectionalExplosion(FVector::RightVector);
         DirectionalExplosion(FVector::RightVector * -1);

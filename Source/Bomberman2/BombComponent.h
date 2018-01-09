@@ -37,5 +37,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
     float m_ExplosionDistance;
 
-    class UCharacterComponent* m_CharacterComponent;
+private:
+    class UCharacterComponent*      m_CharacterComponent;
+    class UDestructibleComponent*   m_DestructibleComponent;
 };
