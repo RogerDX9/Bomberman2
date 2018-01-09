@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{5A7AA574-442F-F2ED-F028-37A7E2EAE097}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "Bomberman2",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	]
+}
