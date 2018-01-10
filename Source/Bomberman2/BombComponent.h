@@ -27,9 +27,6 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = Instances)
     float m_TimeToBlast;
-
-    UPROPERTY(EditAnywhere, Category = Instances)
-    float m_TimeToBlastControlled;
 	
     UPROPERTY(EditAnywhere, Category = Instances)
     UClass* m_BlastParticle;

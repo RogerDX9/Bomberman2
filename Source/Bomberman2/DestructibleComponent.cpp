@@ -5,7 +5,7 @@
 //-------------------------------------------------------
 UDestructibleComponent::UDestructibleComponent()
     : m_bAutoDestroy(true)
-    , m_bBlasted(false)
+    , m_bBlasted    (false)
 {
 }
 

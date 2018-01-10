@@ -16,11 +16,14 @@ public:
 	// Sets default values for this component's properties
 	UCharacterComponent();
 
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
     void OnBombBlasted();
     bool ShouldBlast() const        { return m_bDetonateSpawnedBomb; }
     bool IsControlledBlast() const  { return m_bControlledBlast; }
 
 protected:
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
     int32 m_NbOfBombs;
 
@@ -32,6 +35,9 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
     bool m_bControlledBlast;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
+    float m_ControlledBlastTime;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
     bool m_bDetonateSpawnedBomb;

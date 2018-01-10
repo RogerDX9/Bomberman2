@@ -8,7 +8,6 @@
 //-------------------------------------------------------
 UBombComponent::UBombComponent()
     : m_TimeToBlast             (3)
-    , m_TimeToBlastControlled   (10)
     , m_BlastParticle           (NULL)
     , m_CharacterOwner          (NULL)
     , m_DestructibleComponent   (NULL)
@@ -44,9 +43,8 @@ void UBombComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
     m_TimeToBlast           -= DeltaTime;
-    m_TimeToBlastControlled -= DeltaTime;
 
-    const bool bTimeToBlast = m_CharacterOwner->IsControlledBlast() ? m_TimeToBlastControlled < 0.f : m_TimeToBlast < 0.f;
+    const bool bTimeToBlast = m_CharacterOwner->IsControlledBlast() ? false : m_TimeToBlast < 0.f;
 
     if (bTimeToBlast || m_CharacterOwner->ShouldBlast() || m_DestructibleComponent->IsBlasted())
     {
