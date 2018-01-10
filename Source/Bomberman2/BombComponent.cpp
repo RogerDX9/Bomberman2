@@ -5,15 +5,14 @@
 #include "CharacterComponent.h"
 #include "DestructibleComponent.h"
 
-
 //-------------------------------------------------------
 UBombComponent::UBombComponent()
-    : m_TimeToExplode(3)
-    , m_TimeToRemoteExplode(10)
-    , m_ExplosionClass(NULL)
-    , m_CharacterComponent(NULL)
-    , m_DestructibleComponent(NULL)
-    , m_ExplosionDistance(200)
+    : m_TimeToBlast             (3)
+    , m_TimeToBlastControlled   (10)
+    , m_BlastParticle           (NULL)
+    , m_CharacterOwner          (NULL)
+    , m_DestructibleComponent   (NULL)
+    , m_BlastDistance           (200)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -29,14 +28,14 @@ void UBombComponent::BeginPlay()
         AActor* characterActor = bombActor->GetOwner();
         if (characterActor != NULL)
         {
-            m_CharacterComponent = Cast<UCharacterComponent>(characterActor->GetComponentByClass(UCharacterComponent::StaticClass()));
+            m_CharacterOwner = Cast<UCharacterComponent>(characterActor->GetComponentByClass(UCharacterComponent::StaticClass()));
         }
 
         m_DestructibleComponent = Cast<UDestructibleComponent>(bombActor->GetComponentByClass(UDestructibleComponent::StaticClass()));
     }
     
     check(m_DestructibleComponent != NULL);
-    check(m_CharacterComponent != NULL);
+    check(m_CharacterOwner != NULL);
 }
 
 //-------------------------------------------------------
@@ -44,58 +43,59 @@ void UBombComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    m_TimeToExplode -= DeltaTime;
-    m_TimeToRemoteExplode -= DeltaTime;
+    m_TimeToBlast           -= DeltaTime;
+    m_TimeToBlastControlled -= DeltaTime;
 
-    const bool shouldDetonate = m_CharacterComponent->IsRemoteControlledBombs() ? m_TimeToRemoteExplode < 0 : m_TimeToExplode < 0;
+    const bool bTimeToBlast = m_CharacterOwner->IsControlledBlast() ? m_TimeToBlastControlled < 0.f : m_TimeToBlast < 0.f;
 
-    if (shouldDetonate || m_CharacterComponent->ShouldDetonate() || m_DestructibleComponent->IsExploded())
+    if (bTimeToBlast || m_CharacterOwner->ShouldBlast() || m_DestructibleComponent->IsBlasted())
     {
-        DirectionalExplosion(FVector::RightVector);
-        DirectionalExplosion(FVector::RightVector * -1);
-        DirectionalExplosion(FVector::ForwardVector);
-        DirectionalExplosion(FVector::ForwardVector * -1);
+        m_CharacterOwner->OnBombBlasted();
+
+        DirectionalBlast(FVector::RightVector);
+        DirectionalBlast(FVector::RightVector * -1);
+        DirectionalBlast(FVector::ForwardVector);
+        DirectionalBlast(FVector::ForwardVector * -1);
 
         const FRotator  r(0, 0, 0);
         const FVector   l(GetOwner()->GetActorLocation());
-        GetWorld()->SpawnActor(m_ExplosionClass, &l, &r);
-        GetOwner()->Destroy();
+        GetWorld()->SpawnActor(m_BlastParticle, &l, &r);
 
-        m_CharacterComponent->OnBombExplode();
+        GetOwner()->Destroy();
     }
 }
 
 //-------------------------------------------------------
-void UBombComponent::DirectionalExplosion(const FVector& inDirection)
+void UBombComponent::DirectionalBlast(const FVector& inDirection)
 {
-    const FRotator explosionRotation(0, 0, 0);
-    const FVector startTrace = GetOwner()->GetActorLocation();
-    const FVector endTrace = startTrace + inDirection * m_ExplosionDistance;
+    const FRotator  rotation(0, 0, 0);
+    const FVector   startTrace = GetOwner()->GetActorLocation();
+    const FVector   endTrace = startTrace + inDirection * m_BlastDistance;
 
     FCollisionQueryParams traceParams(NAME_None, FCollisionQueryParams::GetUnknownStatId(), true, GetOwner());
     traceParams.bTraceAsyncScene = true;
-    traceParams.bReturnPhysicalMaterial = true;
 
     FHitResult hitResult(ForceInit);
     if (GetWorld()->LineTraceSingleByChannel(hitResult, startTrace, endTrace, ECC_WorldDynamic, traceParams))
     {
         if (hitResult.Actor != NULL)
         {
-            AActor * actor(hitResult.Actor.Get());
-            UDestructibleComponent* destructibleComp = Cast<UDestructibleComponent>(actor->GetComponentByClass(UDestructibleComponent::StaticClass()));
+            AActor*                 actor(hitResult.Actor.Get());
+            UDestructibleComponent* otherDestructibleComponent = Cast<UDestructibleComponent>(actor->GetComponentByClass(UDestructibleComponent::StaticClass()));
 
-            if (destructibleComp != NULL)
+            if (otherDestructibleComponent != NULL)
             {
-                const FVector l(actor->GetActorLocation());
-                GetWorld()->SpawnActor(m_ExplosionClass, &l, &explosionRotation);
-                destructibleComp->OnExplode();
+                otherDestructibleComponent->Blast();
+
+                const FVector location(actor->GetActorLocation());
+                GetWorld()->SpawnActor(m_BlastParticle, &location, &rotation);
             }
         }
     }
     else
     {
-        const FVector endTrace1 = startTrace + inDirection * (m_ExplosionDistance * 0.5f);
-        GetWorld()->SpawnActor(m_ExplosionClass, &endTrace1, &explosionRotation);
-        GetWorld()->SpawnActor(m_ExplosionClass, &endTrace, &explosionRotation);
+        const FVector endTrace1 = startTrace + inDirection * (m_BlastDistance * 0.5f);
+        GetWorld()->SpawnActor(m_BlastParticle, &endTrace1, &rotation);
+        GetWorld()->SpawnActor(m_BlastParticle, &endTrace, &rotation);
     }
 }

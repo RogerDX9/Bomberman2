@@ -23,21 +23,21 @@ protected:
     // Called when the game starts
     virtual void BeginPlay() override;
 
-    void DirectionalExplosion(const FVector& inDirection);
+    void DirectionalBlast(const FVector& inDirection);
 
     UPROPERTY(EditAnywhere, Category = Instances)
-    float m_TimeToExplode;
+    float m_TimeToBlast;
 
     UPROPERTY(EditAnywhere, Category = Instances)
-    float m_TimeToRemoteExplode;
+    float m_TimeToBlastControlled;
 	
     UPROPERTY(EditAnywhere, Category = Instances)
-    UClass* m_ExplosionClass;
+    UClass* m_BlastParticle;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
-    float m_ExplosionDistance;
+    float m_BlastDistance;
 
 private:
-    class UCharacterComponent*      m_CharacterComponent;
+    class UCharacterComponent*      m_CharacterOwner;
     class UDestructibleComponent*   m_DestructibleComponent;
 };

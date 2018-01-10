@@ -16,17 +16,11 @@ public:
 	// Sets default values for this component's properties
 	UCharacterComponent();
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-    void OnBombExplode();
-    bool ShouldDetonate() const { return m_bDetonate; }
-    bool IsRemoteControlledBombs() const { return m_bRemoteControlledBombs; }
+    void OnBombBlasted();
+    bool ShouldBlast() const        { return m_bDetonateSpawnedBomb; }
+    bool IsControlledBlast() const  { return m_bControlledBlast; }
 
 protected:
-    // Called when the game starts
-    virtual void BeginPlay() override;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
     int32 m_NbOfBombs;
 
@@ -34,13 +28,13 @@ protected:
     int32 m_MaxNbOfBombs;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
-    float m_ExplosionDistance;
+    float m_BlastDistance;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
-    bool m_bRemoteControlledBombs;
+    bool m_bControlledBlast;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
-    bool m_bDetonate;
+    bool m_bDetonateSpawnedBomb;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
     FString m_Name;

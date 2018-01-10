@@ -16,8 +16,8 @@ public:
 	// Sets default values for this component's properties
     UDestructibleComponent();
 
-    void OnExplode();
-    bool IsExploded() const { return m_bExploded; }
+    void Blast();
+    bool IsBlasted() const { return m_bBlasted; }
 
 protected:
 
@@ -25,5 +25,5 @@ protected:
     bool m_bAutoDestroy;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Instances)
-    bool m_bExploded;
+    bool m_bBlasted;
 };
