@@ -1,6 +1,6 @@
 # Bomberman2
 
-The content in following folders was taken from "StarterContent":
+The content in following folders is taken from "StarterContent":
 - Content/Mannequin
 - Content/Bomberman2/Materials
 - Content/Bomberman2/Meshes
