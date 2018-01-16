@@ -35,6 +35,8 @@ protected:
     float m_BlastDistance;
 
 private:
+    void SpawnBlastEffect(const FVector& inDirection, const FVector & inEndLocation);
+
     class UCharacterComponent*      m_CharacterOwner;
     class UDestructibleComponent*   m_DestructibleComponent;
 };

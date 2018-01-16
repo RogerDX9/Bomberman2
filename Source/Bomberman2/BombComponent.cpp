@@ -42,11 +42,11 @@ void UBombComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    m_TimeToBlast           -= DeltaTime;
+    m_TimeToBlast -= DeltaTime;
+    const bool bTimeToBlast = m_TimeToBlast < 0.f;
+    const bool bRemoteBlast = m_CharacterOwner->IsControlledBlast() ? m_CharacterOwner->ShouldBlast() : false;
 
-    const bool bTimeToBlast = m_CharacterOwner->IsControlledBlast() ? false : m_TimeToBlast < 0.f;
-
-    if (bTimeToBlast || m_CharacterOwner->ShouldBlast() || m_DestructibleComponent->IsBlasted())
+    if (bTimeToBlast || bRemoteBlast || m_DestructibleComponent->IsBlasted())
     {
         m_CharacterOwner->OnBombBlasted();
 
@@ -84,16 +84,28 @@ void UBombComponent::DirectionalBlast(const FVector& inDirection)
             if (otherDestructibleComponent != NULL)
             {
                 otherDestructibleComponent->Blast();
-
-                const FVector location(actor->GetActorLocation());
-                GetWorld()->SpawnActor(m_BlastParticle, &location, &rotation);
+                SpawnBlastEffect(inDirection, actor->GetActorLocation());
             }
         }
     }
     else
     {
-        const FVector endTrace1 = startTrace + inDirection * (m_BlastDistance * 0.5f);
-        GetWorld()->SpawnActor(m_BlastParticle, &endTrace1, &rotation);
-        GetWorld()->SpawnActor(m_BlastParticle, &endTrace, &rotation);
+        SpawnBlastEffect(inDirection, startTrace + inDirection * m_BlastDistance);
+    }
+}
+
+//-------------------------------------------------------
+void UBombComponent::SpawnBlastEffect(const FVector& inDirection, const FVector & inEndLocation)
+{
+    const float     spawnRate = 60;
+    const FVector   startTrace = GetOwner()->GetActorLocation();
+    const float     blastDist = (inEndLocation - startTrace).Size();
+    const uint32    nbOfBlasts = blastDist / spawnRate;
+    const FRotator  rotation(0, 0, 0);
+
+    for (uint32 idx = 1; idx < nbOfBlasts; ++idx)
+    {
+        const FVector blastPos = startTrace + inDirection * (spawnRate * idx);
+        GetWorld()->SpawnActor(m_BlastParticle, &blastPos, &rotation);
     }
 }
