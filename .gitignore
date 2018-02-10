@@ -1,0 +1,10 @@
+.vs/
+Binaries/
+Build/
+Content/StarterContent/
+DerivedDataCache/
+Intermediate/
+Saved/
+*.sln
+*.opendb
+Bomberman2.VC.db
